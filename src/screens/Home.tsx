@@ -2,9 +2,12 @@ import React, {useCallback, useState} from 'react';
 
 import {useData, useTheme, useTranslation} from '../hooks/';
 import {Block, Button, Image, Input, Product, Text} from '../components/';
-import {View, ScrollView} from 'react-native';
+import {View, ScrollView, Dimensions} from 'react-native';
 import {HStack} from 'native-base/lib/typescript/components/primitives';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import {Carousel} from 'react-native-snap-carousel';
+import {Avatar} from 'native-base';
+import Post from '../components/Post';
 
 const Home = () => {
   const {t} = useTranslation();
@@ -12,6 +15,8 @@ const Home = () => {
   const {following, trending} = useData();
   const [products, setProducts] = useState(following);
   const {assets, colors, fonts, gradients, sizes} = useTheme();
+  const width = Dimensions.get('window').width;
+  const isCarousel = React.useRef(null);
 
   const handleProducts = useCallback(
     (tab: number) => {
@@ -98,56 +103,21 @@ const Home = () => {
     //     </Block>
     //   </Block>
     // </Block>
-    <ScrollView>
-      <Block card margin={sizes.sm}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: sizes.xs,
-          }}>
-          <Image
-            source={assets.avatar1}
-            style={{width: sizes.xl, height: sizes.xl, borderRadius: sizes.s}}
-          />
-          <Text marginLeft={sizes.sm} p bold>
-            User Name
-          </Text>
-        </View>
+    <>
+      <ScrollView>
+        {/* <Block style={{flexDirection: 'row'}}>
+        <Avatar
+          bg="green.500"
+          source={{
+            uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80',
+          }}
+        />
+        <Input placeholder="Regular" marginBottom={sizes.sm} />
+      </Block> */}
 
-        <Block marginBottom={sizes.xxl}>
-          <Image
-            resizeMode="cover"
-            source={assets.carousel1}
-            style={{width: '100%'}}
-          />
-          {/* <Text p secondary marginTop={sizes.sm}>
-          Private Room • 1 Guests • 1 Sofa
-        </Text>
-        <Text h4 marginVertical={sizes.s}>
-          Single room in center
-        </Text>
-        <Text p lineHeight={26}>
-          As Uber works through a huge amount of internal management turmoil,
-          the company is also consolidating.
-        </Text> */}
-          <View style={{flexDirection: 'row'}}>
-            <Ionicons
-              name="heart-outline"
-              size={32}
-              color="red"
-              style={{margin: sizes.xs}}
-            />
-            <Ionicons
-              name="chatbubble-outline"
-              size={32}
-              color="black"
-              style={{margin: sizes.xs}}
-            />
-          </View>
-        </Block>
-      </Block>
-    </ScrollView>
+        <Post />
+      </ScrollView>
+    </>
   );
 };
 

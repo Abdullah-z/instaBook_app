@@ -1,12 +1,16 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Linking, Platform} from 'react-native';
+import {Alert, Linking, Platform} from 'react-native';
 import {useNavigation} from '@react-navigation/core';
+import CommonDataService from '../services/common-data-service';
+import {SERVICE_ROUTE} from '../services/endpoints';
 
 import {useData, useTheme, useTranslation} from '../hooks/';
 import * as regex from '../constants/regex';
 import {Block, Button, Input, Image, Text, Checkbox} from '../components/';
+import axios from 'axios';
 
 const isAndroid = Platform.OS === 'android';
+const commonDataService = new CommonDataService();
 
 interface IRegistration {
   name: string;
@@ -25,19 +29,15 @@ const Register = () => {
   const {isDark} = useData();
   const {t} = useTranslation();
   const navigation = useNavigation();
-  const [isValid, setIsValid] = useState<IRegistrationValidation>({
-    name: false,
-    email: false,
-    password: false,
-    agreed: false,
-  });
+  const {userData, setUserData} = useData();
+
   const [registration, setRegistration] = useState<IRegistration>({
-    name: '',
     email: '',
     password: '',
-    agreed: false,
   });
   const {assets, colors, gradients, sizes} = useTheme();
+
+  console.log(registration);
 
   const handleChange = useCallback(
     (value) => {
@@ -46,22 +46,39 @@ const Register = () => {
     [setRegistration],
   );
 
-  const handleSignUp = useCallback(() => {
-    if (!Object.values(isValid).includes(false)) {
-      /** send/save registratin data */
-      console.log('handleSignUp', registration);
-    }
-  }, [isValid, registration]);
+  // const handleSignin = () => {
+  //   axios
+  //     .post('http://172.16.1.74:8080/api/login', {
+  //       email: registration.email,
+  //       password: registration.password,
+  //     })
+  //     .then(function (response) {
+  //       console.log(response.data.status);
+  //     })
+  //     .catch(function (error) {
+  //       console.log(error);
+  //     });
+  // };
 
-  useEffect(() => {
-    setIsValid((state) => ({
-      ...state,
-      name: regex.name.test(registration.name),
-      email: regex.email.test(registration.email),
-      password: regex.password.test(registration.password),
-      agreed: registration.agreed,
-    }));
-  }, [registration, setIsValid]);
+  const handleSignin = () => {
+    commonDataService
+      .executeApiCall(SERVICE_ROUTE.LOGIN, {
+        email: registration.email,
+        password: registration.password,
+      })
+      .then((res) => {
+        console.log(res.data);
+
+        res.data.status === 1
+          ? (setUserData(res.data.user), navigation.navigate('Home'))
+          : Alert.alert('Error', res.data.msg, [
+              {
+                text: 'Close',
+                style: 'cancel',
+              },
+            ]);
+      });
+  };
 
   return (
     <Block safe marginTop={sizes.md}>
@@ -176,7 +193,7 @@ const Register = () => {
               </Block>
               {/* form inputs */}
               <Block paddingHorizontal={sizes.sm}>
-                <Input
+                {/* <Input
                   autoCapitalize="none"
                   marginBottom={sizes.m}
                   label={t('common.name')}
@@ -184,15 +201,13 @@ const Register = () => {
                   success={Boolean(registration.name && isValid.name)}
                   danger={Boolean(registration.name && !isValid.name)}
                   onChangeText={(value) => handleChange({name: value})}
-                />
+                /> */}
                 <Input
                   autoCapitalize="none"
                   marginBottom={sizes.m}
                   label={t('common.email')}
                   keyboardType="email-address"
                   placeholder={t('common.emailPlaceholder')}
-                  success={Boolean(registration.email && isValid.email)}
-                  danger={Boolean(registration.email && !isValid.email)}
                   onChangeText={(value) => handleChange({email: value})}
                 />
                 <Input
@@ -202,8 +217,6 @@ const Register = () => {
                   label={t('common.password')}
                   placeholder={t('common.passwordPlaceholder')}
                   onChangeText={(value) => handleChange({password: value})}
-                  success={Boolean(registration.password && isValid.password)}
-                  danger={Boolean(registration.password && !isValid.password)}
                 />
               </Block>
               {/* checkbox terms */}
@@ -225,11 +238,10 @@ const Register = () => {
                 </Text>
               </Block>
               <Button
-                onPress={handleSignUp}
+                onPress={() => handleSignin()}
                 marginVertical={sizes.s}
                 marginHorizontal={sizes.sm}
-                gradient={gradients.primary}
-                disabled={Object.values(isValid).includes(false)}>
+                gradient={gradients.primary}>
                 <Text bold white transform="uppercase">
                   {t('common.signup')}
                 </Text>

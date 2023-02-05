@@ -13,6 +13,9 @@ const Profile = () => {
   const {t} = useTranslation();
   const navigation = useNavigation();
   const {assets, colors, sizes} = useTheme();
+  const {userData} = useData();
+
+  console.log(userData);
 
   const IMAGE_SIZE = (sizes.width - (sizes.padding + sizes.sm) * 2) / 3;
   const IMAGE_VERTICAL_SIZE =
@@ -51,7 +54,7 @@ const Profile = () => {
             padding={sizes.sm}
             paddingBottom={sizes.l}
             radius={sizes.cardRadius}
-            source={assets.background}>
+            source={{uri: userData.avatar}}>
             <Button
               row
               flex={0}
@@ -70,17 +73,17 @@ const Profile = () => {
               </Text>
             </Button>
             <Block flex={0} align="center">
-              <Image
+              {/* <Image
                 width={64}
                 height={64}
                 marginBottom={sizes.sm}
-                source={{uri: user?.avatar}}
-              />
+                source={{uri: userData.avatar}}
+              /> */}
               <Text h5 center white>
-                {user?.name}
+                {userData?.fullname}
               </Text>
               <Text p center white>
-                {user?.department}
+                @{userData?.username}
               </Text>
               <Block row marginVertical={sizes.m}>
                 <Button
@@ -154,11 +157,11 @@ const Profile = () => {
                 <Text>{t('profile.posts')}</Text>
               </Block>
               <Block align="center">
-                <Text h5>{(user?.stats?.followers || 0) / 1000}k</Text>
+                <Text h5>{userData?.followers.length}</Text>
                 <Text>{t('profile.followers')}</Text>
               </Block>
               <Block align="center">
-                <Text h5>{(user?.stats?.following || 0) / 1000}k</Text>
+                <Text h5>{userData?.following.length}</Text>
                 <Text>{t('profile.following')}</Text>
               </Block>
             </Block>

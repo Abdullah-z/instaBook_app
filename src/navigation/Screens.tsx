@@ -3,6 +3,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 import {Articles, Components, Home, Profile, Register, Pro} from '../screens';
 import {useScreenOptions, useTranslation} from '../hooks';
+import Comments from '../screens/Comments';
 
 const Stack = createStackNavigator();
 
@@ -11,7 +12,9 @@ export default () => {
   const screenOptions = useScreenOptions();
 
   return (
-    <Stack.Navigator screenOptions={screenOptions.stack}>
+    <Stack.Navigator
+      screenOptions={screenOptions.stack}
+      initialRouteName={'Register'}>
       <Stack.Screen
         name="Home"
         component={Home}
@@ -42,6 +45,11 @@ export default () => {
         name="Register"
         component={Register}
         options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Comments"
+        component={Comments}
+        options={{headerShown: true}}
       />
     </Stack.Navigator>
   );
