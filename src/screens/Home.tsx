@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useState, useEffect} from 'react';
 
 import {useData, useTheme, useTranslation} from '../hooks/';
 import {Block, Button, Image, Input, Product, Text} from '../components/';
@@ -8,6 +8,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import {Carousel} from 'react-native-snap-carousel';
 import {Avatar} from 'native-base';
 import Post from '../components/Post';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = () => {
   const {t} = useTranslation();
@@ -17,6 +18,8 @@ const Home = () => {
   const {assets, colors, fonts, gradients, sizes} = useTheme();
   const width = Dimensions.get('window').width;
   const isCarousel = React.useRef(null);
+  const TOKEN_KEY = 'tokenkey123';
+  const {token} = useData();
 
   const handleProducts = useCallback(
     (tab: number) => {
@@ -25,6 +28,20 @@ const Home = () => {
     },
     [following, trending, setTab, setProducts],
   );
+
+  const saveData = async () => {
+    try {
+      await AsyncStorage.setItem(TOKEN_KEY, JSON.stringify(token));
+
+      console.log('Data successfully saved');
+    } catch (e) {
+      console.log('Failed to save the data to the storage');
+    }
+  };
+
+  useEffect(() => {
+    saveData();
+  }, []);
 
   return (
     // <Block>

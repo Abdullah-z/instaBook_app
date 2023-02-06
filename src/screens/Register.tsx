@@ -8,9 +8,11 @@ import {useData, useTheme, useTranslation} from '../hooks/';
 import * as regex from '../constants/regex';
 import {Block, Button, Input, Image, Text, Checkbox} from '../components/';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const isAndroid = Platform.OS === 'android';
 const commonDataService = new CommonDataService();
+const TOKEN_KEY = 'tokenkey123';
 
 interface IRegistration {
   name: string;
@@ -30,6 +32,18 @@ const Register = () => {
   const {t} = useTranslation();
   const navigation = useNavigation();
   const {userData, setUserData} = useData();
+  const {token, setToken} = useData();
+  const {userID, setUserID} = useData();
+
+  const saveData = async () => {
+    try {
+      await AsyncStorage.setItem(TOKEN_KEY, JSON.stringify(token));
+
+      console.log('Data successfully saved');
+    } catch (e) {
+      console.log('Failed to save the data to the storage');
+    }
+  };
 
   const [registration, setRegistration] = useState<IRegistration>({
     email: '',
@@ -70,7 +84,10 @@ const Register = () => {
         console.log(res.data);
 
         res.data.status === 1
-          ? (setUserData(res.data.user), navigation.navigate('Home'))
+          ? (setUserData(res.data.user),
+            setToken(res.data.access_token),
+            setUserID(res.data.user._id),
+            navigation.navigate('Home'))
           : Alert.alert('Error', res.data.msg, [
               {
                 text: 'Close',

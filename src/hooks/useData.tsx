@@ -32,6 +32,8 @@ export const DataProvider = ({children}: {children: React.ReactNode}) => {
   const [articles, setArticles] = useState<IArticle[]>(ARTICLES);
   const [article, setArticle] = useState<IArticle>({});
   const [userData, setUserData] = useState(null);
+  const [userID, setUserID] = useState(null);
+  const [token, setToken] = useState(null);
 
   // get isDark mode from storage
   const getIsDark = useCallback(async () => {
@@ -119,6 +121,10 @@ export const DataProvider = ({children}: {children: React.ReactNode}) => {
     handleArticle,
     userData,
     setUserData,
+    userID,
+    setUserID,
+    token,
+    setToken,
   };
 
   return (

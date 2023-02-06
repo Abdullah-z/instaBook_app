@@ -1,4 +1,6 @@
 import axios from 'axios';
+const TOKEN_KEY = 'tokenkey123';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 export const axiosInstance = axios.create({
@@ -7,22 +9,22 @@ export const axiosInstance = axios.create({
   //httpsAgent: httpsAgent
 });
 
+let token = null;
+
 axiosInstance.interceptors.request.use(
   async function (config: any) {
-    // let token = await AsyncStorage.getItem(STORAGE_KEY).then((res) => {
-    //   return res;
-    // });
+    token = await AsyncStorage.getItem(TOKEN_KEY).then((res) => {
+      // token = JSON.parse(data);
 
-    // let locale = await AsyncStorage.getItem(STORAGE_KEY2).then((res) => {
-    //   return res;
-    // });
-
-    let token = '123456789';
+      token = JSON.parse(res);
+      console.log('token on commonData: ' + token);
+    });
 
     config.headers = {
       ...config.headers,
-      Authorization: `Bearer ${token}`,
-      // lang: locale,
+      // Authorization: `Bearer ${token}`,
+      Authorization: token,
+      limit: 9,
       // os: Platform.OS,
     };
     // you can also do other modification in config

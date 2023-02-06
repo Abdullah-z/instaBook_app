@@ -1,21 +1,27 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Platform, Linking} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {useNavigation} from '@react-navigation/core';
 
 import {Block, Button, Image, Text} from '../components/';
 import {useData, useTheme, useTranslation} from '../hooks/';
+import CommonDataService from '../services/common-data-service';
+import {SERVICE_ROUTE} from '../services/endpoints';
+import axios from 'axios';
+import {FlatList} from 'native-base';
 
 const isAndroid = Platform.OS === 'android';
-
+const commonDataService = new CommonDataService();
 const Profile = () => {
   const {user} = useData();
   const {t} = useTranslation();
   const navigation = useNavigation();
   const {assets, colors, sizes} = useTheme();
   const {userData} = useData();
-
-  console.log(userData);
+  const {userID} = useData();
+  const {token} = useData();
+  const [userPosts, setUserPosts] = useState(null);
+  console.log(userPosts);
 
   const IMAGE_SIZE = (sizes.width - (sizes.padding + sizes.sm) * 2) / 3;
   const IMAGE_VERTICAL_SIZE =
@@ -39,6 +45,39 @@ const Profile = () => {
     },
     [user],
   );
+
+  const link = 'http://172.16.1.74:8080/' + SERVICE_ROUTE.USER_POSTS + userID;
+
+  console.log(link);
+
+  // const fetchUserPosts = () => {
+  //   commonDataService.fetchData(url).then((res) => {
+  //     console.log(res);
+  //   });
+  // };
+
+  const config = {
+    headers: {
+      Authorization: token,
+      limit: 9,
+    },
+  };
+  const url = link;
+
+  const fetchUserPosts = () => {
+    axios
+      .get(url, config)
+      .then((res) => {
+        let data = JSON.stringify(res.data.posts);
+        let data2 = JSON.parse(data);
+        setUserPosts(data);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  useEffect(() => {
+    fetchUserPosts();
+  }, []);
 
   return (
     <Block safe marginTop={sizes.md}>
@@ -74,8 +113,8 @@ const Profile = () => {
             </Button>
             <Block flex={0} align="center">
               {/* <Image
-                width={64}
-                height={64}
+                width={128}
+                height={128}
                 marginBottom={sizes.sm}
                 source={{uri: userData.avatar}}
               /> */}
@@ -189,34 +228,35 @@ const Profile = () => {
                 </Text>
               </Button>
             </Block>
-            <Block row justify="space-between" wrap="wrap">
-              <Image
-                resizeMode="cover"
-                source={assets?.photo1}
-                style={{
-                  width: IMAGE_VERTICAL_SIZE + IMAGE_MARGIN / 2,
-                  height: IMAGE_VERTICAL_SIZE * 2 + IMAGE_VERTICAL_MARGIN,
-                }}
-              />
-              <Block marginLeft={sizes.m}>
-                <Image
-                  resizeMode="cover"
-                  source={assets?.photo2}
-                  marginBottom={IMAGE_VERTICAL_MARGIN}
-                  style={{
-                    height: IMAGE_VERTICAL_SIZE,
-                    width: IMAGE_VERTICAL_SIZE,
-                  }}
-                />
-                <Image
-                  resizeMode="cover"
-                  source={assets?.photo3}
-                  style={{
-                    height: IMAGE_VERTICAL_SIZE,
-                    width: IMAGE_VERTICAL_SIZE,
-                  }}
-                />
-              </Block>
+            <Block
+              style={{flexDirection: 'row'}}
+              justify="space-between"
+              wrap="wrap">
+              {userPosts?.map((index) => {
+                index.images.map((loop) => {
+                  return (
+                    <Image
+                      resizeMode="cover"
+                      source={{uri: loop.url}}
+                      marginBottom={IMAGE_VERTICAL_MARGIN}
+                      style={{
+                        height: IMAGE_VERTICAL_SIZE,
+                        width: IMAGE_VERTICAL_SIZE,
+                      }}
+                    />
+                  );
+                });
+              })}
+
+              {/* <Image
+                        resizeMode="cover"
+                        source={JSON.stringify(index.images)}
+                        marginBottom={IMAGE_VERTICAL_MARGIN}
+                        style={{
+                          height: IMAGE_VERTICAL_SIZE,
+                          width: IMAGE_VERTICAL_SIZE,
+                        }}
+                      /> */}
             </Block>
           </Block>
         </Block>
