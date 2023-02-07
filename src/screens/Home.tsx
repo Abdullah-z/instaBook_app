@@ -9,6 +9,7 @@ import {Carousel} from 'react-native-snap-carousel';
 import {Avatar} from 'native-base';
 import Post from '../components/Post';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const Home = () => {
   const {t} = useTranslation();
@@ -20,6 +21,8 @@ const Home = () => {
   const isCarousel = React.useRef(null);
   const TOKEN_KEY = 'tokenkey123';
   const {token} = useData();
+  const [feed, setFeed] = useState();
+  console.log('feed===>' + feed);
 
   const handleProducts = useCallback(
     (tab: number) => {
@@ -41,6 +44,26 @@ const Home = () => {
 
   useEffect(() => {
     saveData();
+  }, []);
+
+  const config = {
+    headers: {
+      Authorization: token,
+      limit: 9,
+    },
+  };
+
+  const fetchFeed = () => {
+    axios
+      .get('http://172.16.1.74:8080/api/posts', config)
+      .then((res) => {
+        setFeed(res.data.posts);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  useEffect(() => {
+    fetchFeed();
   }, []);
 
   return (
@@ -132,7 +155,9 @@ const Home = () => {
         <Input placeholder="Regular" marginBottom={sizes.sm} />
       </Block> */}
 
-        <Post />
+        {feed?.map((index, loop) => {
+          return <Post key={loop} data={index} />;
+        })}
       </ScrollView>
     </>
   );

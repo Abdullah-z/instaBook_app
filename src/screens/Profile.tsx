@@ -8,7 +8,7 @@ import {useData, useTheme, useTranslation} from '../hooks/';
 import CommonDataService from '../services/common-data-service';
 import {SERVICE_ROUTE} from '../services/endpoints';
 import axios from 'axios';
-import {FlatList} from 'native-base';
+import {Avatar, FlatList} from 'native-base';
 
 const isAndroid = Platform.OS === 'android';
 const commonDataService = new CommonDataService();
@@ -21,7 +21,6 @@ const Profile = () => {
   const {userID} = useData();
   const {token} = useData();
   const [userPosts, setUserPosts] = useState(null);
-  console.log(userPosts);
 
   const IMAGE_SIZE = (sizes.width - (sizes.padding + sizes.sm) * 2) / 3;
   const IMAGE_VERTICAL_SIZE =
@@ -48,14 +47,6 @@ const Profile = () => {
 
   const link = 'http://172.16.1.74:8080/' + SERVICE_ROUTE.USER_POSTS + userID;
 
-  console.log(link);
-
-  // const fetchUserPosts = () => {
-  //   commonDataService.fetchData(url).then((res) => {
-  //     console.log(res);
-  //   });
-  // };
-
   const config = {
     headers: {
       Authorization: token,
@@ -68,9 +59,7 @@ const Profile = () => {
     axios
       .get(url, config)
       .then((res) => {
-        let data = JSON.stringify(res.data.posts);
-        let data2 = JSON.parse(data);
-        setUserPosts(data);
+        setUserPosts(res.data.posts);
       })
       .catch((err) => console.log(err));
   };
@@ -93,7 +82,7 @@ const Profile = () => {
             padding={sizes.sm}
             paddingBottom={sizes.l}
             radius={sizes.cardRadius}
-            source={{uri: userData.avatar}}>
+            source={assets.background}>
             <Button
               row
               flex={0}
@@ -118,6 +107,7 @@ const Profile = () => {
                 marginBottom={sizes.sm}
                 source={{uri: userData.avatar}}
               /> */}
+              <Avatar source={{uri: userData.avatar}} size="2xl" />
               <Text h5 center white>
                 {userData?.fullname}
               </Text>
@@ -143,7 +133,25 @@ const Profile = () => {
                     </Text>
                   </Block>
                 </Button>
-                <Button
+                {/* <Button
+                  white
+                  outlined
+                  shadow={false}
+                  radius={sizes.m}
+                  onPress={() => {
+                    alert(`Follow ${user?.name}`);
+                  }}>
+                  <Block
+                    justify="center"
+                    radius={sizes.m}
+                    paddingHorizontal={sizes.m}
+                    color="rgba(255,255,255,0.2)">
+                    <Text white bold transform="uppercase">
+                      Edit Profile
+                    </Text>
+                  </Block>
+                </Button> */}
+                {/* <Button
                   shadow={false}
                   radius={sizes.m}
                   marginHorizontal={sizes.sm}
@@ -167,7 +175,7 @@ const Profile = () => {
                     name="logo-dribbble"
                     color={colors.white}
                   />
-                </Button>
+                </Button> */}
               </Block>
             </Block>
           </Image>
@@ -192,7 +200,7 @@ const Profile = () => {
               paddingVertical={sizes.sm}
               renderToHardwareTextureAndroid>
               <Block align="center">
-                <Text h5>{user?.stats?.posts}</Text>
+                <Text h5>{userPosts?.length}</Text>
                 <Text>{t('profile.posts')}</Text>
               </Block>
               <Block align="center">
@@ -208,44 +216,86 @@ const Profile = () => {
 
           {/* profile: about me */}
           <Block paddingHorizontal={sizes.sm}>
-            <Text h5 semibold marginBottom={sizes.s} marginTop={sizes.sm}>
+            <Text h4 semibold marginBottom={sizes.s} marginTop={sizes.sm}>
               {t('profile.aboutMe')}
             </Text>
-            <Text p lineHeight={26}>
-              {user?.about}
+            <Block row>
+              <Ionicons
+                name="home"
+                size={20}
+                color="black"
+                style={{margin: sizes.xs}}
+              />
+              <Text p lineHeight={26}>
+                Lives in
+              </Text>
+              <Text marginLeft={sizes.xs} p lineHeight={26} bold>
+                United States of America
+              </Text>
+            </Block>
+            <Block row>
+              <Ionicons
+                name="transgender"
+                size={20}
+                color="black"
+                style={{margin: sizes.xs}}
+              />
+              <Text p lineHeight={26}>
+                Gender
+              </Text>
+              <Text marginLeft={sizes.xs} p lineHeight={26} bold>
+                {userData.gender.charAt(0).toUpperCase() +
+                  userData.gender.slice(1)}
+              </Text>
+            </Block>
+            <Block row>
+              <Ionicons
+                name="call"
+                size={20}
+                color="black"
+                style={{margin: sizes.xs}}
+              />
+              <Text p lineHeight={26}>
+                Contact
+              </Text>
+              <Text marginLeft={sizes.xs} p lineHeight={26} bold>
+                {userData.mobile}
+              </Text>
+            </Block>
+            <Text marginLeft={sizes.xs} p lineHeight={26} bold>
+              {userData.story}
             </Text>
           </Block>
 
           {/* profile: photo album */}
           <Block paddingHorizontal={sizes.sm} marginTop={sizes.s}>
             <Block row align="center" justify="space-between">
-              <Text h5 semibold>
-                {t('common.album')}
+              <Text h4 semibold marginBottom={sizes.sm}>
+                Posts
               </Text>
-              <Button>
+              {/* <Button>
                 <Text p primary semibold>
                   {t('common.viewall')}
                 </Text>
-              </Button>
+              </Button> */}
             </Block>
             <Block
               style={{flexDirection: 'row'}}
               justify="space-between"
               wrap="wrap">
               {userPosts?.map((index) => {
-                index.images.map((loop) => {
-                  return (
-                    <Image
-                      resizeMode="cover"
-                      source={{uri: loop.url}}
-                      marginBottom={IMAGE_VERTICAL_MARGIN}
-                      style={{
-                        height: IMAGE_VERTICAL_SIZE,
-                        width: IMAGE_VERTICAL_SIZE,
-                      }}
-                    />
-                  );
-                });
+                return (
+                  <Image
+                    key={index._id}
+                    resizeMode="cover"
+                    source={{uri: index.images[0].url}}
+                    marginBottom={IMAGE_VERTICAL_MARGIN}
+                    style={{
+                      height: IMAGE_VERTICAL_SIZE,
+                      width: IMAGE_VERTICAL_SIZE,
+                    }}
+                  />
+                );
               })}
 
               {/* <Image
