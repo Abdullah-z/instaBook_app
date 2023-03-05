@@ -27,6 +27,8 @@ export default function Post(props) {
   const navigation = useNavigation();
   const [carousel, setCarousel] = useState();
   const {userID} = useData();
+  const [isLiked, setIsLiked] = useState();
+  console.log('hook' + isLiked);
 
   let Tempcarousel = [];
 
@@ -35,6 +37,10 @@ export default function Post(props) {
       Tempcarousel.push(index.url);
     });
     setCarousel(Tempcarousel);
+  }, []);
+
+  useEffect(() => {
+    setIsLiked(props.isLiked);
   }, []);
 
   return (
@@ -85,9 +91,6 @@ export default function Post(props) {
           <SliderBox
             images={carousel}
             sliderBoxHeight={400}
-            onCurrentImagePressed={(index) =>
-              console.warn(`image ${index} pressed`)
-            }
             autoplay={false}
             dotColor="#FFEE58"
             inactiveDotColor="#90A4AE"
@@ -123,7 +126,8 @@ export default function Post(props) {
         <Block>
           <Block style={{flexDirection: 'row'}}>
             <Ionicons
-              name={props.isLiked ? 'heart' : 'heart-outline'}
+              onPress={() => (isLiked ? setIsLiked(false) : setIsLiked(true))}
+              name={isLiked ? 'heart' : 'heart-outline'}
               size={32}
               color="red"
               style={{margin: sizes.xs}}

@@ -109,26 +109,8 @@ const Register = () => {
             radius={sizes.cardRadius}
             source={assets.background}
             height={sizes.height * 0.3}>
-            <Button
-              row
-              flex={0}
-              justify="flex-start"
-              onPress={() => navigation.goBack()}>
-              <Image
-                radius={0}
-                width={10}
-                height={18}
-                color={colors.white}
-                source={assets.arrow}
-                transform={[{rotate: '180deg'}]}
-              />
-              <Text p white marginLeft={sizes.s}>
-                {t('common.goBack')}
-              </Text>
-            </Button>
-
-            <Text h4 center white marginBottom={sizes.md}>
-              {t('register.title')}
+            <Text h4 center white marginTop={sizes.md}>
+              instaBook
             </Text>
           </Image>
         </Block>
@@ -140,7 +122,7 @@ const Register = () => {
           <Block
             flex={0}
             radius={sizes.sm}
-            marginHorizontal="8%"
+            marginHorizontal="5%"
             shadow={!isAndroid} // disabled shadow on Android due to blur overlay + elevation issue
           >
             <Block
@@ -153,10 +135,10 @@ const Register = () => {
               tint={colors.blurTint}
               paddingVertical={sizes.sm}>
               <Text p semibold center>
-                {t('register.subtitle')}
+                Sign In
               </Text>
               {/* social buttons */}
-              <Block row center justify="space-evenly" marginVertical={sizes.m}>
+              {/* <Block row center justify="space-evenly" marginVertical={sizes.m}>
                 <Button outlined gray shadow={!isAndroid}>
                   <Image
                     source={assets.facebook}
@@ -181,8 +163,8 @@ const Register = () => {
                     color={isDark ? colors.icon : undefined}
                   />
                 </Button>
-              </Block>
-              <Block
+              </Block> */}
+              {/* <Block
                 row
                 flex={0}
                 align="center"
@@ -208,7 +190,7 @@ const Register = () => {
                   start={[1, 0]}
                   gradient={gradients.divider}
                 />
-              </Block>
+              </Block> */}
               {/* form inputs */}
               <Block paddingHorizontal={sizes.sm}>
                 {/* <Input
@@ -238,7 +220,7 @@ const Register = () => {
                 />
               </Block>
               {/* checkbox terms */}
-              <Block row flex={0} align="center" paddingHorizontal={sizes.sm}>
+              {/* <Block row flex={0} align="center" paddingHorizontal={sizes.sm}>
                 <Checkbox
                   marginRight={sizes.sm}
                   checked={registration?.agreed}
@@ -254,9 +236,8 @@ const Register = () => {
                     {t('common.terms')}
                   </Text>
                 </Text>
-              </Block>
+              </Block> */}
               <Button
-                onPress={() => handleSignin()}
                 marginVertical={sizes.s}
                 marginHorizontal={sizes.sm}
                 gradient={gradients.primary}>
@@ -265,12 +246,12 @@ const Register = () => {
                 </Text>
               </Button>
               <Button
+                onPress={() => handleSignin()}
                 primary
                 outlined
                 shadow={!isAndroid}
                 marginVertical={sizes.s}
-                marginHorizontal={sizes.sm}
-                onPress={() => navigation.navigate('Pro')}>
+                marginHorizontal={sizes.sm}>
                 <Text bold primary transform="uppercase">
                   {t('common.signin')}
                 </Text>
