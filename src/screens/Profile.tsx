@@ -45,23 +45,15 @@ const Profile = () => {
     [user],
   );
 
-  const link = 'http://172.16.1.74:8080/' + SERVICE_ROUTE.USER_POSTS + userID;
-
-  const config = {
-    headers: {
-      Authorization: token,
-      limit: 9,
-    },
-  };
-  const url = link;
+  const url = SERVICE_ROUTE.USER_POSTS + userID;
 
   const fetchUserPosts = () => {
-    axios
-      .get(url, config)
+    commonDataService
+      .fetchData(url)
       .then((res) => {
         setUserPosts(res.data.posts);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err.response.data));
   };
 
   useEffect(() => {

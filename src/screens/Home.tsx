@@ -10,8 +10,13 @@ import {Avatar} from 'native-base';
 import Post from '../components/Post';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import CommonDataService from '../services/common-data-service';
+
+import {SERVICE_ROUTE} from '../services/endpoints';
 
 const Home = () => {
+  const {userID} = useData();
+  console.log(userID);
   const {t} = useTranslation();
   const [tab, setTab] = useState<number>(0);
   const {following, trending} = useData();
@@ -22,7 +27,8 @@ const Home = () => {
   const TOKEN_KEY = 'tokenkey123';
   const {token} = useData();
   const [feed, setFeed] = useState();
-  console.log('feed===>' + feed);
+  console.log('feed===>' + JSON.stringify(feed));
+  const commonDataService = new CommonDataService();
 
   const handleProducts = useCallback(
     (tab: number) => {
@@ -53,13 +59,22 @@ const Home = () => {
     },
   };
 
+  // const fetchFeed = () => {
+  //   axios
+  //     .get('http://172.16.1.125:8080/api/posts', config)
+  //     .then((res) => {
+  //       setFeed(res.data.posts);
+  //     })
+  //     .catch((err) => console.log(err));
+  // };
+
   const fetchFeed = () => {
-    axios
-      .get('http://172.16.1.74:8080/api/posts', config)
+    commonDataService
+      .fetchData(SERVICE_ROUTE.POSTS)
       .then((res) => {
         setFeed(res.data.posts);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err.response.data));
   };
 
   useEffect(() => {
@@ -156,7 +171,13 @@ const Home = () => {
       </Block> */}
 
         {feed?.map((index, loop) => {
-          return <Post key={loop} data={index} />;
+          return (
+            <Post
+              key={loop}
+              data={index}
+              isLiked={index.likes.find((e) => e._id === userID) ? true : false}
+            />
+          );
         })}
       </ScrollView>
     </>

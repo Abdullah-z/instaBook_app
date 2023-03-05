@@ -9,25 +9,19 @@ export const axiosInstance = axios.create({
   //httpsAgent: httpsAgent
 });
 
-let token = null;
-
 axiosInstance.interceptors.request.use(
   async function (config: any) {
-    token = await AsyncStorage.getItem(TOKEN_KEY).then((res) => {
-      // token = JSON.parse(data);
-
-      token = JSON.parse(res);
-      console.log('token on commonData: ' + token);
+    let token = await AsyncStorage.getItem(TOKEN_KEY).then((res) => {
+      return JSON.parse(res);
     });
 
     config.headers = {
       ...config.headers,
-      // Authorization: `Bearer ${token}`,
+
       Authorization: token,
       limit: 9,
-      // os: Platform.OS,
     };
-    // you can also do other modification in config
+
     return config;
   },
   function (error) {
@@ -35,7 +29,7 @@ axiosInstance.interceptors.request.use(
   },
 );
 
-export const REACT_APP_API_URL = 'http://172.16.1.74:8080/';
+export const REACT_APP_API_URL = 'http://172.16.5.146:8080/';
 
 export default class CommonDataService {
   executeApiCall(path, data) {

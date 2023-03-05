@@ -26,7 +26,7 @@ export default function Post(props) {
   const {isOpen, onOpen, onClose} = useDisclose();
   const navigation = useNavigation();
   const [carousel, setCarousel] = useState();
-  console.log(carousel);
+  const {userID} = useData();
 
   let Tempcarousel = [];
 
@@ -123,13 +123,18 @@ export default function Post(props) {
         <Block>
           <Block style={{flexDirection: 'row'}}>
             <Ionicons
-              name="heart-outline"
+              name={props.isLiked ? 'heart' : 'heart-outline'}
               size={32}
               color="red"
               style={{margin: sizes.xs}}
             />
             <Ionicons
-              onPress={() => navigation.navigate('Comments')}
+              onPress={() =>
+                navigation.navigate('Comments', {
+                  data: props.data,
+                  carousel: carousel,
+                })
+              }
               name="chatbubble-outline"
               size={32}
               color="black"

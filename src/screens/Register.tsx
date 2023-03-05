@@ -39,7 +39,7 @@ const Register = () => {
     try {
       await AsyncStorage.setItem(TOKEN_KEY, JSON.stringify(token));
 
-      console.log('Data successfully saved');
+      console.log('Token saved on Login');
     } catch (e) {
       console.log('Failed to save the data to the storage');
     }
@@ -87,6 +87,7 @@ const Register = () => {
           ? (setUserData(res.data.user),
             setToken(res.data.access_token),
             setUserID(res.data.user._id),
+            saveData(),
             navigation.navigate('Home'))
           : Alert.alert('Error', res.data.msg, [
               {

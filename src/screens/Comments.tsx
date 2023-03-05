@@ -1,12 +1,24 @@
 import {Avatar, HamburgerIcon, Input, Menu, Pressable, View} from 'native-base';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {ScrollView} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {useTheme} from '../hooks';
 import {Block, Image, Text} from '../components';
+import moment from 'moment';
+import {SliderBox} from 'react-native-image-slider-box';
 
-export default function Comments() {
+export default function Comments({route}) {
   const {assets, colors, fonts, gradients, sizes} = useTheme();
+  const {data, carousel} = route.params;
+  const [replyComments, setReplyComments] = useState();
+
+  console.log(data?.comments);
+
+  useEffect(() => {
+    const newReply = data.comments.filter((cm) => cm.reply);
+    setReplyComments(newReply);
+  }, [data.comments]);
+
   return (
     <>
       <View flex={1}>
@@ -25,15 +37,17 @@ style={{width: sizes.xl, height: sizes.xl, borderRadius: sizes.xl}}
               <Avatar
                 bg="green.500"
                 source={{
-                  uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80',
+                  uri: data?.user.avatar,
                 }}
               />
 
               <Block style={{flexDirection: 'column'}}>
                 <Text marginLeft={sizes.sm} p bold>
-                  User Name
+                  {data?.user.fullname}
                 </Text>
-                <Text marginLeft={sizes.sm}>2 days ago</Text>
+                <Text marginLeft={sizes.sm}>
+                  {moment(data.createdAt).fromNow()}
+                </Text>
               </Block>
               <Block style={{alignItems: 'flex-end'}}>
                 <Menu
@@ -60,12 +74,48 @@ style={{width: sizes.xl, height: sizes.xl, borderRadius: sizes.xl}}
               </Block>
             </Block>
 
-            <Block>
-              <Image
-                resizeMode="cover"
-                source={assets.carousel1}
-                style={{width: '100%'}}
-              />
+            <Block align="center">
+              {carousel ? (
+                <SliderBox
+                  images={carousel}
+                  sliderBoxHeight={400}
+                  onCurrentImagePressed={(index) =>
+                    console.warn(`image ${index} pressed`)
+                  }
+                  autoplay={false}
+                  dotColor="#FFEE58"
+                  inactiveDotColor="#90A4AE"
+                  paginationBoxVerticalPadding={20}
+                  resizeMethod={'resize'}
+                  resizeMode={'cover'}
+                  paginationBoxStyle={{
+                    position: 'absolute',
+                    bottom: 0,
+                    padding: 0,
+                    alignItems: 'center',
+                    alignSelf: 'center',
+                    justifyContent: 'center',
+                    paddingVertical: 10,
+                  }}
+                  dotStyle={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    marginHorizontal: 0,
+                    padding: 0,
+                    margin: 0,
+                    backgroundColor: 'rgba(128, 128, 128, 0.92)',
+                  }}
+                  ImageComponentStyle={{
+                    borderRadius: 15,
+                    width: '97%',
+                    marginTop: 5,
+                  }}
+                  imageLoadingColor="#2196F3"
+                />
+              ) : (
+                <></>
+              )}
             </Block>
             <Block style={{flexDirection: 'row'}}>
               <Ionicons
@@ -82,145 +132,177 @@ style={{width: sizes.xl, height: sizes.xl, borderRadius: sizes.xl}}
               />
             </Block>
             <Block style={{flexDirection: 'row'}}>
-              <Text bold>5</Text>
-              <Text>Likes </Text>
+              <Text bold>{data?.likes.length}</Text>
+              <Text marginLeft={3}>Likes </Text>
 
               <Text marginLeft={sizes.sm} bold>
-                2
+                {data?.comments.length}
               </Text>
-              <Text>Comments</Text>
+              <Text marginLeft={3}>Comments</Text>
             </Block>
           </Block>
 
           {/* Comment Section */}
 
-          <Block card marginHorizontal={sizes.xs} marginBottom={90}>
-            <Block style={{flexDirection: 'row'}}>
-              <Avatar
-                size={'xs'}
-                bg="green.500"
-                source={{
-                  uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80',
-                }}
-              />
-              <Block marginLeft={sizes.xs} style={{flexDirection: 'column'}}>
-                <Block
-                  card
-                  color={colors.light}
-                  style={{flexDirection: 'column'}}>
-                  <Block style={{flexDirection: 'row'}}>
-                    <Text marginLeft={sizes.xs} bold>
-                      UserName
-                    </Text>
-                    <Text marginLeft={sizes.sm} color={colors.gray}>
-                      12h
-                    </Text>
-                    <Block style={{alignItems: 'flex-end'}}>
-                      <Menu
-                        w="190"
-                        trigger={(triggerProps) => {
+          {data.comments.length > 0 ? (
+            <Block card marginHorizontal={sizes.xs} marginBottom={90}>
+              {data?.comments.map((index) => {
+                return (
+                  <>
+                    {!index.reply ? (
+                      <>
+                        <Block
+                          marginBottom={sizes.xs}
+                          style={{flexDirection: 'row'}}>
+                          <Avatar
+                            size={'xs'}
+                            bg="green.500"
+                            source={{
+                              uri: index?.user.avatar,
+                            }}
+                          />
+                          <Block
+                            marginLeft={sizes.xs}
+                            style={{flexDirection: 'column'}}>
+                            <Block
+                              card
+                              color={colors.light}
+                              style={{flexDirection: 'column'}}>
+                              <Block style={{flexDirection: 'row'}}>
+                                <Text marginLeft={sizes.xs} bold>
+                                  {index?.user.fullname}
+                                </Text>
+                                <Text marginLeft={sizes.sm} color={colors.gray}>
+                                  {moment(index.createdAt).fromNow()}
+                                </Text>
+                                <Block style={{alignItems: 'flex-end'}}>
+                                  <Menu
+                                    w="190"
+                                    trigger={(triggerProps) => {
+                                      return (
+                                        <Pressable
+                                          accessibilityLabel="More options menu"
+                                          {...triggerProps}>
+                                          <Ionicons
+                                            name="ellipsis-horizontal"
+                                            size={18}
+                                            color="black"
+                                            style={{margin: sizes.xs}}
+                                          />
+                                        </Pressable>
+                                      );
+                                    }}>
+                                    <Menu.Item>Edit</Menu.Item>
+                                    <Menu.Item>Delete</Menu.Item>
+                                  </Menu>
+                                </Block>
+                              </Block>
+                              <Text marginLeft={sizes.xs}>{index.content}</Text>
+                            </Block>
+                            <Block style={{flexDirection: 'row'}}>
+                              <Text bold>Like</Text>
+                              <Text marginLeft={sizes.sm} bold>
+                                Reply
+                              </Text>
+                              <Block style={{alignItems: 'flex-end'}}>
+                                <Block style={{flexDirection: 'row'}}>
+                                  <Text bold>{index.likes.length}</Text>
+                                  <Text marginLeft={3}>Likes</Text>
+                                </Block>
+                              </Block>
+                            </Block>
+                          </Block>
+                        </Block>
+                        {replyComments?.map((loop) => {
                           return (
-                            <Pressable
-                              accessibilityLabel="More options menu"
-                              {...triggerProps}>
-                              <Ionicons
-                                name="ellipsis-horizontal"
-                                size={18}
-                                color="black"
-                                style={{margin: sizes.xs}}
-                              />
-                            </Pressable>
+                            <>
+                              {loop?.reply === index._id ? (
+                                <Block
+                                  marginLeft={sizes.md}
+                                  style={{flexDirection: 'row'}}>
+                                  <Avatar
+                                    size={'xs'}
+                                    bg="green.500"
+                                    source={{
+                                      uri: loop?.user.avatar,
+                                    }}
+                                  />
+                                  <Block
+                                    marginLeft={sizes.xs}
+                                    marginBottom={sizes.xs}
+                                    style={{flexDirection: 'column'}}>
+                                    <Block
+                                      card
+                                      color={colors.light}
+                                      style={{flexDirection: 'column'}}>
+                                      <Block style={{flexDirection: 'row'}}>
+                                        <Text marginLeft={sizes.xs} bold>
+                                          {loop?.user.fullname}
+                                        </Text>
+                                        <Text
+                                          marginLeft={sizes.sm}
+                                          color={colors.gray}>
+                                          {moment(loop.createdAt).fromNow()}
+                                        </Text>
+                                        <Block style={{alignItems: 'flex-end'}}>
+                                          <Menu
+                                            w="190"
+                                            trigger={(triggerProps) => {
+                                              return (
+                                                <Pressable
+                                                  accessibilityLabel="More options menu"
+                                                  {...triggerProps}>
+                                                  <Ionicons
+                                                    name="ellipsis-horizontal"
+                                                    size={18}
+                                                    color="black"
+                                                    style={{margin: sizes.xs}}
+                                                  />
+                                                </Pressable>
+                                              );
+                                            }}>
+                                            <Menu.Item>Edit</Menu.Item>
+                                            <Menu.Item>Delete</Menu.Item>
+                                          </Menu>
+                                        </Block>
+                                      </Block>
+                                      <Text marginLeft={sizes.xs}>
+                                        {loop?.content}
+                                      </Text>
+                                    </Block>
+                                    <Block style={{flexDirection: 'row'}}>
+                                      <Text bold>Like</Text>
+                                      <Text marginLeft={sizes.sm} bold>
+                                        Reply
+                                      </Text>
+                                      <Block style={{alignItems: 'flex-end'}}>
+                                        <Block style={{flexDirection: 'row'}}>
+                                          <Text bold>{loop.likes.length}</Text>
+                                          <Text marginLeft={3}>Likes</Text>
+                                        </Block>
+                                      </Block>
+                                    </Block>
+                                  </Block>
+                                </Block>
+                              ) : (
+                                <></>
+                              )}
+                            </>
                           );
-                        }}>
-                        <Menu.Item>Edit</Menu.Item>
-                        <Menu.Item>Delete</Menu.Item>
-                      </Menu>
-                    </Block>
-                  </Block>
-                  <Text marginLeft={sizes.xs}>
-                    Technology is transforming people’s needs and expectations
-                    for communication. Many users want or need to receive
-                    reliable, timely alerts and notifications, even when they
-                    aren’t actively using an application. On mobile devices,
-                    push notifications serve this purpose. They look like any
-                    other alert on the device to inform users of messages or
-                    events, but they only reach users who’ve installed the
-                    application.
-                  </Text>
-                </Block>
-                <Block style={{flexDirection: 'row'}}>
-                  <Text bold>Like</Text>
-                  <Text marginLeft={sizes.sm} bold>
-                    Reply
-                  </Text>
-                  <Block style={{alignItems: 'flex-end'}}>
-                    <Block style={{flexDirection: 'row'}}>
-                      <Text bold>5</Text>
-                      <Text>Likes</Text>
-                    </Block>
-                  </Block>
-                </Block>
-
-                <Block marginTop={sizes.sm} style={{flexDirection: 'row'}}>
-                  <Avatar
-                    size={'xs'}
-                    bg="green.500"
-                    source={{
-                      uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80',
-                    }}
-                  />
-                  <Block
-                    marginLeft={sizes.xs}
-                    card
-                    color={colors.light}
-                    style={{flexDirection: 'column'}}>
-                    <Block style={{flexDirection: 'row'}}>
-                      <Text marginLeft={sizes.xs} bold>
-                        UserName
-                      </Text>
-                      <Text marginLeft={sizes.sm} color={colors.gray}>
-                        12h
-                      </Text>
-                      <Block style={{alignItems: 'flex-end'}}>
-                        <Menu
-                          w="190"
-                          trigger={(triggerProps) => {
-                            return (
-                              <Pressable
-                                accessibilityLabel="More options menu"
-                                {...triggerProps}>
-                                <Ionicons
-                                  name="ellipsis-horizontal"
-                                  size={18}
-                                  color="black"
-                                  style={{margin: sizes.xs}}
-                                />
-                              </Pressable>
-                            );
-                          }}>
-                          <Menu.Item>Edit</Menu.Item>
-                          <Menu.Item>Delete</Menu.Item>
-                        </Menu>
-                      </Block>
-                    </Block>
-                    <Text marginLeft={sizes.xs}>What?</Text>
-                  </Block>
-                </Block>
-                <Block marginLeft={sizes.md} style={{flexDirection: 'row'}}>
-                  <Text bold>Like</Text>
-                  <Text marginLeft={sizes.sm} bold>
-                    Reply
-                  </Text>
-                  <Block style={{alignItems: 'flex-end'}}>
-                    <Block style={{flexDirection: 'row'}}>
-                      <Text bold>5</Text>
-                      <Text>Likes</Text>
-                    </Block>
-                  </Block>
-                </Block>
-              </Block>
+                        })}
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                  </>
+                );
+              })}
             </Block>
-          </Block>
+          ) : (
+            <Text center marginBottom={90}>
+              No Comments
+            </Text>
+          )}
         </ScrollView>
         <Block
           style={{
