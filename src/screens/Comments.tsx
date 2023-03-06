@@ -11,13 +11,16 @@ export default function Comments({route}) {
   const {assets, colors, fonts, gradients, sizes} = useTheme();
   const {data, carousel} = route.params;
   const [replyComments, setReplyComments] = useState();
+  const [comments, setComments] = useState();
+  const [newComment, setNewComment] = useState('');
 
-  console.log(data?.comments);
+  console.log(comments);
 
   useEffect(() => {
     const newReply = data.comments.filter((cm) => cm.reply);
     setReplyComments(newReply);
-  }, [data.comments]);
+    setComments(data?.comments);
+  }, []);
 
   return (
     <>
@@ -144,9 +147,9 @@ style={{width: sizes.xl, height: sizes.xl, borderRadius: sizes.xl}}
 
           {/* Comment Section */}
 
-          {data.comments.length > 0 ? (
+          {comments.length > 0 ? (
             <Block card marginHorizontal={sizes.xs} marginBottom={90}>
-              {data?.comments.map((index) => {
+              {comments?.map((index) => {
                 return (
                   <>
                     {!index.reply ? (
@@ -324,12 +327,56 @@ style={{width: sizes.xl, height: sizes.xl, borderRadius: sizes.xl}}
             }}>
             <Input
               width={'95%'}
+              value={newComment}
               variant="rounded"
               placeholder="Add Comment"
               autoFocus
               marginRight={2}
+              onChangeText={(value) => {
+                setNewComment(value);
+              }}
             />
-            <Ionicons name="paper-plane-outline" size={24} color="black" />
+            <Ionicons
+              name="paper-plane-outline"
+              size={24}
+              color="black"
+              onPress={() => {
+                setComments((oldata) => [
+                  ...oldata,
+                  {
+                    __v: 0,
+                    _id: Math.random,
+                    content: newComment,
+                    createdAt: '2023-01-11T07:13:10.277Z',
+                    likes: [],
+                    postId: '63be5da7e20a910d9c43ae91',
+                    postUserId: '63bd65b55b9a7559acd7533e',
+                    updatedAt: '2023-01-11T07:13:10.277Z',
+                    user: {
+                      __v: 0,
+                      _id: '63be5f79e20a910d9c43ae94',
+                      address: '',
+                      avatar:
+                        'https://res.cloudinary.com/dcxgup2xo/image/upload/v1673421006/lnksbzx2ruallgidcebc.jpg',
+                      createdAt: '2023-01-11T07:04:25.136Z',
+                      email: 'bill@gmail.com',
+                      followers: [Array],
+                      following: [Array],
+                      fullname: 'Bill Gates',
+                      gender: 'male',
+                      mobile: '',
+                      role: 'user',
+                      saved: [Array],
+                      story: '',
+                      updatedAt: '2023-02-20T07:24:25.345Z',
+                      username: 'billgates',
+                      website: '',
+                    },
+                  },
+                ]),
+                  setNewComment('');
+              }}
+            />
           </Block>
         </Block>
       </View>

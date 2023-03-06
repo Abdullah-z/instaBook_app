@@ -20,15 +20,44 @@ import {SliderBox} from 'react-native-image-slider-box';
 import {l} from 'i18n-js';
 import axios from 'axios';
 import moment from 'moment';
+import CommonDataService, {
+  REACT_APP_API_URL,
+} from '../services/common-data-service';
+import {SERVICE_ROUTE} from '../services/endpoints';
 
 export default function Post(props) {
+  const commonDataService = new CommonDataService();
   const {assets, colors, fonts, gradients, sizes} = useTheme();
   const {isOpen, onOpen, onClose} = useDisclose();
   const navigation = useNavigation();
   const [carousel, setCarousel] = useState();
   const {userID} = useData();
   const [isLiked, setIsLiked] = useState();
-  console.log('hook' + isLiked);
+  const [likes, setLikes] = useState();
+
+  console.log(props.data.comments);
+
+  const LikePost = () => {
+    let url = `${REACT_APP_API_URL}api/post/${props.data._id}/like`;
+    let url2 = `${REACT_APP_API_URL}api/post/${props.data._id}/unlike`;
+    isLiked
+      ? commonDataService
+          .patchApiCall(url2, {})
+          .then((res) => {
+            console.log(res.data);
+          })
+          .catch(function (error) {
+            console.log(error);
+          })
+      : commonDataService
+          .patchApiCall(url, {})
+          .then((res) => {
+            console.log(res.data);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+  };
 
   let Tempcarousel = [];
 
@@ -41,6 +70,7 @@ export default function Post(props) {
 
   useEffect(() => {
     setIsLiked(props.isLiked);
+    setLikes(props.data.likes.length);
   }, []);
 
   return (
@@ -126,7 +156,12 @@ export default function Post(props) {
         <Block>
           <Block style={{flexDirection: 'row'}}>
             <Ionicons
-              onPress={() => (isLiked ? setIsLiked(false) : setIsLiked(true))}
+              onPress={() => {
+                isLiked
+                  ? (setIsLiked(false), setLikes(likes - 1))
+                  : (setIsLiked(true), setLikes(likes + 1)),
+                  LikePost();
+              }}
               name={isLiked ? 'heart' : 'heart-outline'}
               size={32}
               color="red"
@@ -158,7 +193,7 @@ export default function Post(props) {
       </Block>
 
       <Block style={{flexDirection: 'row'}}>
-        <Text bold>{props.data.likes.length}</Text>
+        <Text bold>{likes}</Text>
         <Text marginLeft={2}>Likes </Text>
 
         <Text marginLeft={sizes.sm} bold>
