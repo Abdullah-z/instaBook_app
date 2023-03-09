@@ -2,10 +2,14 @@ import {Avatar, HamburgerIcon, Input, Menu, Pressable, View} from 'native-base';
 import React, {useEffect, useState} from 'react';
 import {ScrollView} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {useTheme} from '../hooks';
+import {useData, useTheme} from '../hooks';
 import {Block, Image, Text} from '../components';
 import moment from 'moment';
 import {SliderBox} from 'react-native-image-slider-box';
+import CommonDataService from '../services/common-data-service';
+import {SERVICE_ROUTE} from '../services/endpoints';
+
+const commonDataService = new CommonDataService();
 
 export default function Comments({route}) {
   const {assets, colors, fonts, gradients, sizes} = useTheme();
@@ -13,14 +17,50 @@ export default function Comments({route}) {
   const [replyComments, setReplyComments] = useState();
   const [comments, setComments] = useState();
   const [newComment, setNewComment] = useState('');
+  const {userID, fullName, avatar} = useData();
+  const [placeholderText, setPlaceholderText] = useState('Add Comment');
+  const [isReplying, setIsReplying] = useState(false);
+  const [replyingID, setReplyingID] = useState();
 
-  console.log(comments);
+  console.log(data._id);
+  console.log(isReplying);
 
   useEffect(() => {
     const newReply = data.comments.filter((cm) => cm.reply);
     setReplyComments(newReply);
     setComments(data?.comments);
   }, []);
+
+  const PostComment = () => {
+    commonDataService
+      .executeApiCall(SERVICE_ROUTE.NEW_COMMENT, {
+        content: newComment,
+        postUserId: userID,
+        postId: data._id,
+      })
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const PostReply = (commID) => {
+    commonDataService
+      .executeApiCall(SERVICE_ROUTE.NEW_COMMENT, {
+        content: newComment,
+        postUserId: userID,
+        postId: data._id,
+        reply: commID,
+      })
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
 
   return (
     <>
@@ -147,7 +187,7 @@ style={{width: sizes.xl, height: sizes.xl, borderRadius: sizes.xl}}
 
           {/* Comment Section */}
 
-          {comments.length > 0 ? (
+          {comments?.length > 0 ? (
             <Block card marginHorizontal={sizes.xs} marginBottom={90}>
               {comments?.map((index) => {
                 return (
@@ -204,7 +244,16 @@ style={{width: sizes.xl, height: sizes.xl, borderRadius: sizes.xl}}
                             </Block>
                             <Block style={{flexDirection: 'row'}}>
                               <Text bold>Like</Text>
-                              <Text marginLeft={sizes.sm} bold>
+                              <Text
+                                marginLeft={sizes.sm}
+                                bold
+                                onPress={() => (
+                                  setPlaceholderText(
+                                    `Reply to ${index.user.fullname}`,
+                                  ),
+                                  setIsReplying(true),
+                                  setReplyingID(index._id)
+                                )}>
                                 Reply
                               </Text>
                               <Block style={{alignItems: 'flex-end'}}>
@@ -329,7 +378,7 @@ style={{width: sizes.xl, height: sizes.xl, borderRadius: sizes.xl}}
               width={'95%'}
               value={newComment}
               variant="rounded"
-              placeholder="Add Comment"
+              placeholder={placeholderText}
               autoFocus
               marginRight={2}
               onChangeText={(value) => {
@@ -347,22 +396,21 @@ style={{width: sizes.xl, height: sizes.xl, borderRadius: sizes.xl}}
                     __v: 0,
                     _id: Math.random,
                     content: newComment,
-                    createdAt: '2023-01-11T07:13:10.277Z',
+                    createdAt: new Date(),
                     likes: [],
                     postId: '63be5da7e20a910d9c43ae91',
                     postUserId: '63bd65b55b9a7559acd7533e',
                     updatedAt: '2023-01-11T07:13:10.277Z',
                     user: {
                       __v: 0,
-                      _id: '63be5f79e20a910d9c43ae94',
+                      _id: userID,
                       address: '',
-                      avatar:
-                        'https://res.cloudinary.com/dcxgup2xo/image/upload/v1673421006/lnksbzx2ruallgidcebc.jpg',
+                      avatar: avatar,
                       createdAt: '2023-01-11T07:04:25.136Z',
                       email: 'bill@gmail.com',
                       followers: [Array],
                       following: [Array],
-                      fullname: 'Bill Gates',
+                      fullname: fullName,
                       gender: 'male',
                       mobile: '',
                       role: 'user',
@@ -374,7 +422,8 @@ style={{width: sizes.xl, height: sizes.xl, borderRadius: sizes.xl}}
                     },
                   },
                 ]),
-                  setNewComment('');
+                  setNewComment(''),
+                  isReplying ? PostReply(replyingID) : PostComment();
               }}
             />
           </Block>

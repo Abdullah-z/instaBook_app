@@ -29,7 +29,7 @@ axiosInstance.interceptors.request.use(
   },
 );
 
-export const REACT_APP_API_URL = 'http://172.16.4.82:8080/';
+export const REACT_APP_API_URL = 'http://172.16.2.111:8080/';
 
 export default class CommonDataService {
   executeApiCall(path, data) {

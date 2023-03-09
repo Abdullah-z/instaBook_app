@@ -33,7 +33,7 @@ const Register = () => {
   const navigation = useNavigation();
   const {userData, setUserData} = useData();
   const {token, setToken} = useData();
-  const {userID, setUserID} = useData();
+  const {userID, setUserID, setAvatar, setFullName} = useData();
 
   const saveData = async () => {
     try {
@@ -87,6 +87,8 @@ const Register = () => {
           ? (setUserData(res.data.user),
             setToken(res.data.access_token),
             setUserID(res.data.user._id),
+            setAvatar(res.data.user.avatar),
+            setFullName(res.data.user.fullname),
             saveData(),
             navigation.navigate('Home'))
           : Alert.alert('Error', res.data.msg, [

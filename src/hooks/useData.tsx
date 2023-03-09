@@ -34,6 +34,8 @@ export const DataProvider = ({children}: {children: React.ReactNode}) => {
   const [userData, setUserData] = useState(null);
   const [userID, setUserID] = useState(null);
   const [token, setToken] = useState(null);
+  const [avatar, setAvatar] = useState(null);
+  const [fullName, setFullName] = useState(null);
 
   // get isDark mode from storage
   const getIsDark = useCallback(async () => {
@@ -125,6 +127,10 @@ export const DataProvider = ({children}: {children: React.ReactNode}) => {
     setUserID,
     token,
     setToken,
+    avatar,
+    setAvatar,
+    setFullName,
+    fullName,
   };
 
   return (
