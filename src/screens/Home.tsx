@@ -11,7 +11,7 @@ import Post from '../components/Post';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import CommonDataService from '../services/common-data-service';
-
+import * as ImagePicker from 'expo-image-picker';
 import {SERVICE_ROUTE} from '../services/endpoints';
 
 const Home = () => {
@@ -29,6 +29,53 @@ const Home = () => {
   const [feed, setFeed] = useState();
   console.log('feed===>' + JSON.stringify(feed));
   const commonDataService = new CommonDataService();
+  const [image, setImage] = useState(null);
+
+  console.log(image);
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
+  const imageUpload = async (images) => {
+    let imgArr = [];
+    for (const item of images) {
+      const formData = new FormData();
+
+      if (item.camera) {
+        formData.append('file', item.camera);
+      } else {
+        formData.append('file', item);
+      }
+
+      formData.append('upload_preset', 'dprkhzls');
+      formData.append('cloud_name', 'dcxgup2xo');
+
+      const res = await fetch(
+        'https://api.cloudinary.com/v1_1/dcxgup2xo/image/upload',
+        {
+          method: 'POST',
+          body: formData,
+        },
+      );
+
+      const data = await res.json();
+      imgArr.push({public_id: data.public_id, url: data.secure_url});
+    }
+    return imgArr;
+  };
 
   const handleProducts = useCallback(
     (tab: number) => {
@@ -82,84 +129,78 @@ const Home = () => {
   }, []);
 
   return (
-    // <Block>
-    //   {/* search input */}
-    //   <Block color={colors.card} flex={0} padding={sizes.padding}>
-    //     <Input search placeholder={t('common.search')} />
-    //   </Block>
-
-    //   {/* toggle products list */}
-    //   <Block
-    //     row
-    //     flex={0}
-    //     align="center"
-    //     justify="center"
-    //     color={colors.card}
-    //     paddingBottom={sizes.sm}>
-    //     <Button onPress={() => handleProducts(0)}>
-    //       <Block row align="center">
-    //         <Block
-    //           flex={0}
-    //           radius={6}
-    //           align="center"
-    //           justify="center"
-    //           marginRight={sizes.s}
-    //           width={sizes.socialIconSize}
-    //           height={sizes.socialIconSize}
-    //           gradient={gradients?.[tab === 0 ? 'primary' : 'secondary']}>
-    //           <Image source={assets.extras} color={colors.white} radius={0} />
-    //         </Block>
-    //         <Text p font={fonts?.[tab === 0 ? 'medium' : 'normal']}>
-    //           {t('home.following')}
-    //         </Text>
-    //       </Block>
-    //     </Button>
-    //     <Block
-    //       gray
-    //       flex={0}
-    //       width={1}
-    //       marginHorizontal={sizes.sm}
-    //       height={sizes.socialIconSize}
-    //     />
-    //     <Button onPress={() => handleProducts(1)}>
-    //       <Block row align="center">
-    //         <Block
-    //           flex={0}
-    //           radius={6}
-    //           align="center"
-    //           justify="center"
-    //           marginRight={sizes.s}
-    //           width={sizes.socialIconSize}
-    //           height={sizes.socialIconSize}
-    //           gradient={gradients?.[tab === 1 ? 'primary' : 'secondary']}>
-    //           <Image
-    //             radius={0}
-    //             color={colors.white}
-    //             source={assets.documentation}
-    //           />
-    //         </Block>
-    //         <Text p font={fonts?.[tab === 1 ? 'medium' : 'normal']}>
-    //           {t('home.trending')}
-    //         </Text>
-    //       </Block>
-    //     </Button>
-    //   </Block>
-
-    //   {/* products list */}
-    //   <Block
-    //     scroll
-    //     paddingHorizontal={sizes.padding}
-    //     showsVerticalScrollIndicator={false}
-    //     contentContainerStyle={{paddingBottom: sizes.l}}>
-    //     <Block row wrap="wrap" justify="space-between" marginTop={sizes.sm}>
-    //       {products?.map((product) => (
-    //         <Product {...product} key={`card-${product?.id}`} />
-    //       ))}
-    //     </Block>
-    //   </Block>
-    // </Block>
     <>
-      <ScrollView>
+      <ScrollView scrollEnabled={false}>
+        <Block
+          card
+          marginHorizontal={sizes.xs}
+          marginTop={sizes.xs}
+          marginBottom={sizes.sm}>
+          <Block
+            align="center"
+            style={{
+              flexDirection: 'row',
+            }}>
+            <Input
+              // value={newComment}
+              variant="rounded"
+              style={{minWidth: '85%'}}
+              // placeholder={placeholderText}
+              autoFocus
+              marginRight={2}
+              marginVertical={sizes.xs}
+              // onChangeText={(value) => {
+              //   setNewComment(value);
+              // }}
+            />
+            <Ionicons
+              name="paper-plane-outline"
+              size={24}
+              color="black"
+              // onPress={() => {
+              //   setComments((oldata) => [
+              //     ...oldata,
+              //     {
+              //       __v: 0,
+              //       _id: Math.random,
+              //       content: newComment,
+              //       createdAt: new Date(),
+              //       likes: [],
+              //       postId: '63be5da7e20a910d9c43ae91',
+              //       postUserId: '63bd65b55b9a7559acd7533e',
+              //       updatedAt: '2023-01-11T07:13:10.277Z',
+              //       user: {
+              //         __v: 0,
+              //         _id: userID,
+              //         address: '',
+              //         avatar: avatar,
+              //         createdAt: '2023-01-11T07:04:25.136Z',
+              //         email: 'bill@gmail.com',
+              //         followers: [Array],
+              //         following: [Array],
+              //         fullname: fullName,
+              //         gender: 'male',
+              //         mobile: '',
+              //         role: 'user',
+              //         saved: [Array],
+              //         story: '',
+              //         updatedAt: '2023-02-20T07:24:25.345Z',
+              //         username: 'billgates',
+              //         website: '',
+              //       },
+              //     },
+              //   ]),
+              //     setNewComment(''),
+              //     isReplying ? PostReply(replyingID) : PostComment();
+              // }}
+            />
+          </Block>
+          <Button onPress={pickImage}>
+            <Text>Image</Text>
+          </Button>
+        </Block>
+      </ScrollView>
+      <ScrollView style={{marginTop: sizes.xs}}>
         {/* <Block style={{flexDirection: 'row'}}>
         <Avatar
           bg="green.500"

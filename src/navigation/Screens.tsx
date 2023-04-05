@@ -5,6 +5,7 @@ import {Articles, Components, Home, Profile, Register, Pro} from '../screens';
 import {useScreenOptions, useTranslation} from '../hooks';
 import Comments from '../screens/Comments';
 import Saved from '../screens/Saved';
+import Test from '../screens/Test';
 
 const Stack = createStackNavigator();
 
@@ -55,6 +56,11 @@ export default () => {
       <Stack.Screen
         name="Saved"
         component={Saved}
+        options={{headerShown: true}}
+      />
+      <Stack.Screen
+        name="Test"
+        component={Test}
         options={{headerShown: true}}
       />
     </Stack.Navigator>
