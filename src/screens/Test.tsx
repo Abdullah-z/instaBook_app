@@ -6,6 +6,7 @@ import * as Permissions from 'expo-permissions';
 
 const App = () => {
   const [image, setImage] = useState(null);
+  console.log(image);
 
   const getPermissionAsync = async () => {
     if (Constants.platform.ios) {

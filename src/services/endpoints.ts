@@ -5,4 +5,5 @@ export const SERVICE_ROUTE = {
   POSTS: 'api/posts',
   NEW_COMMENT: 'api/comment',
   // LIKE_POST: `api/post/${id}/like`,
+  NEW_POST: 'api/posts',
 };

@@ -35,7 +35,7 @@ export default function Post(props) {
   const [isLiked, setIsLiked] = useState();
   const [likes, setLikes] = useState();
 
-  console.log(props.data.comments);
+  // console.log(props.data.comments);
 
   const LikePost = () => {
     let url = `${REACT_APP_API_URL}api/post/${props.data._id}/like`;
@@ -66,7 +66,7 @@ export default function Post(props) {
       Tempcarousel.push(index.url);
     });
     setCarousel(Tempcarousel);
-  }, []);
+  }, [props.data]);
 
   useEffect(() => {
     setIsLiked(props.isLiked);

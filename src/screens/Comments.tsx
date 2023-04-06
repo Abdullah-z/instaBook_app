@@ -22,8 +22,8 @@ export default function Comments({route}) {
   const [isReplying, setIsReplying] = useState(false);
   const [replyingID, setReplyingID] = useState();
 
-  console.log(data._id);
-  console.log(isReplying);
+  // console.log(data._id);
+  // console.log(isReplying);
 
   useEffect(() => {
     const newReply = data.comments.filter((cm) => cm.reply);
