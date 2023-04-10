@@ -41,14 +41,14 @@ const Home = () => {
   const [feed, setFeed] = useState();
   // console.log('feed===>' + JSON.stringify(feed));
   const commonDataService = new CommonDataService();
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState([]);
   const [content, setContent] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  // const [url, seturl] = useState(null);
-  // const [pID, setpID] = useState(null);
+  const [imageData, setImageData] = useState([]);
 
-  console.log(image);
+  // console.log(imageData);
+  console.log('image' + image);
 
   const onRefresh = React.useCallback(() => {
     fetchFeed();
@@ -66,54 +66,72 @@ const Home = () => {
     // console.log(result);
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      setImage((oldData) => [...oldData, result.assets[0].uri]);
     }
   };
 
-  const NewPost = (pID, url) => {
+  const NewPost = (data) => {
     commonDataService
       .executeApiCall(SERVICE_ROUTE.NEW_POST, {
         content: content,
-        images: [{public_id: pID, url: url}],
+        images: data,
       })
       .then((res) => {
         console.log(res.data);
         alert('Upload successful!');
+
+        setImage([]);
       })
       .catch(function (error) {
         console.log(error);
+        setImage([]);
       });
   };
 
   const uploadImage = async () => {
-    const data = new FormData();
-    data.append('file', {
-      uri: image,
-      type: 'image/jpeg',
-      name: 'myImage',
-    });
-    data.append('upload_preset', 'dprkhzls');
-    data.append('cloud_name', 'dcxgup2xo');
+    let imgArr = [];
 
-    fetch('https://api.cloudinary.com/v1_1/dcxgup2xo/image/upload', {
-      method: 'POST',
-      body: data,
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        NewPost(result.public_id, result.url);
-
-        setImage(null);
-      })
-      .catch((error) => {
-        console.error(error);
-        alert('Upload failed.');
+    image.map((index) => {
+      const data = new FormData();
+      data.append('file', {
+        uri: index,
+        type: 'image/jpeg',
+        name: 'myImage',
       });
+      data.append('upload_preset', 'dprkhzls');
+      data.append('cloud_name', 'dcxgup2xo');
+
+      fetch('https://api.cloudinary.com/v1_1/dcxgup2xo/image/upload', {
+        method: 'POST',
+        body: data,
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          console.log(result);
+          // NewPost(result.public_id, result.url);
+          // setImageData((oldData) => [
+          //   ...oldData,
+          //   {public_id: result.public_id, url: result.url},
+          // ]);
+
+          imgArr.push({public_id: result.public_id, url: result.url});
+          console.log('---->' + imgArr);
+        })
+        .then(() => {
+          console.log('IL:' + image.length + 'IAL:' + imgArr.length);
+
+          image.length === imgArr.length ? NewPost(imgArr) : '';
+        })
+
+        .catch((error) => {
+          console.error(error);
+          alert('Upload failed.');
+        });
+    });
   };
 
   const saveData = async () => {
@@ -197,11 +215,17 @@ const Home = () => {
                 />
               </Block>
               {image ? (
-                <Image
-                  marginTop={sizes.xs}
-                  source={{uri: image}}
-                  style={{width: 100, height: 100}}
-                />
+                image.map((index) => {
+                  console.log(index);
+                  return (
+                    <Image
+                      marginTop={sizes.xs}
+                      source={{uri: index}}
+                      style={{width: 100, height: 100}}
+                      key={index}
+                    />
+                  );
+                })
               ) : (
                 <></>
               )}
@@ -210,7 +234,7 @@ const Home = () => {
               <Button
                 width={'20%'}
                 onPress={() => {
-                  setShowModal(false), setImage(null);
+                  setShowModal(false), setImage([]);
                 }}>
                 <Text>Cancel</Text>
               </Button>
